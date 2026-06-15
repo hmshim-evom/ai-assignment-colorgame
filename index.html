@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guess the Evom Color</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --canvas:#F8F9FA;
+    --canvas-alt:#F1F3F5;
+    --ink:#212529;
+    --body:#495057;
+    --caption:#868E96;
+    --hairline:#DEE2E6;
+    --hairline-soft:#E9ECEF;
+    --violet-5:#7566FF;
+    --violet-7:#5E1AFF;
+    --violet-1:#E1E0FF;
+    --violet-tint:#F0F0FE;
+    --card:#FFFFFF;
+    --shadow-card:0 4px 12px rgba(15,17,21,.06), 0 12px 24px rgba(15,17,21,.04);
+    --shadow-float:0 8px 24px rgba(15,17,21,.08), 0 24px 48px rgba(15,17,21,.06);
+    --glow:0 12px 32px rgba(117,102,255,.18);
+    --r-md:12px; --r-lg:20px; --r-xl:32px; --r-pill:9999px;
+    --font:'Pretendard','Pretendard Variable',-apple-system,'Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--font);
+    color:var(--ink);
+    background:
+      radial-gradient(900px 600px at 88% -8%, rgba(117,102,255,.10), transparent 60%),
+      radial-gradient(900px 600px at -8% 108%, rgba(77,171,247,.10), transparent 60%),
+      var(--canvas);
+    min-height:100%;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    justify-content:center;
+    padding:clamp(16px,4vw,48px) clamp(14px,4vw,32px);
+  }
+  .app{width:100%;max-width:560px;}
+
+  /* frosted glass surface — the signature treatment */
+  .glass{
+    background:rgba(255,255,255,.72);
+    -webkit-backdrop-filter:blur(20px) saturate(140%);
+    backdrop-filter:blur(20px) saturate(140%);
+    border:1px solid rgba(255,255,255,.7);
+    box-shadow:var(--shadow-card);
+    border-radius:var(--r-xl);
+  }
+
+  .eyebrow{
+    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--violet-7);
+  }
+  h1{font-size:clamp(30px,8vw,42px);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-top:10px;}
+  .lede{margin-top:14px;color:var(--body);font-size:15px;line-height:1.6;}
+
+  .panel{padding:clamp(22px,5vw,32px);}
+  .stack>*+*{margin-top:18px;}
+
+  label.field{display:block;}
+  .field-label{font-size:13px;font-weight:600;color:var(--caption);margin-bottom:8px;}
+  input[type=text]{
+    width:100%;font-family:var(--font);font-size:17px;font-weight:600;color:var(--ink);
+    background:var(--canvas);border:1.5px solid var(--hairline);border-radius:var(--r-md);
+    padding:14px 16px;outline:none;transition:border-color .15s, box-shadow .15s;
+  }
+  input[type=text]:focus{border-color:var(--violet-5);box-shadow:0 0 0 4px rgba(117,102,255,.14);}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-family:var(--font);font-size:16px;font-weight:700;
+    border:none;border-radius:var(--r-pill);cursor:pointer;
+    padding:15px 26px;transition:transform .12s ease, box-shadow .2s ease, background .2s;
+    width:100%;
+  }
+  .btn-primary{background:var(--violet-7);color:#fff;box-shadow:var(--glow);}
+  .btn-primary:hover{transform:translateY(-1px);background:#5414e6;}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-primary:disabled{background:var(--hairline);color:var(--caption);box-shadow:none;cursor:not-allowed;transform:none;}
+  .btn-ghost{background:transparent;color:var(--violet-7);border:1.5px solid var(--violet-1);box-shadow:none;}
+  .btn-ghost:hover{background:var(--violet-tint);}
+  .btn:focus-visible{outline:3px solid rgba(117,102,255,.5);outline-offset:2px;}
+
+  .micro{font-size:12.5px;color:var(--caption);line-height:1.55;}
+  .center{text-align:center;}
+
+  /* progress dots */
+  .rounds{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:6px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--hairline);transition:background .3s, transform .3s;}
+  .dot.done{background:var(--violet-5);}
+  .dot.active{background:var(--violet-7);transform:scale(1.45);}
+  .round-tag{font-size:13px;font-weight:700;color:var(--caption);text-align:center;}
+
+  /* reveal */
+  .swatch-xl{
+    width:100%;aspect-ratio:16/10;border-radius:var(--r-lg);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06), var(--shadow-float);
+    position:relative;overflow:hidden;
+  }
+  .count-badge{
+    position:absolute;top:14px;right:16px;
+    font-size:40px;font-weight:800;font-variant-numeric:tabular-nums;
+    color:#fff;
+  }
+  .timebar{height:5px;border-radius:var(--r-pill);background:var(--hairline-soft);overflow:hidden;margin-top:16px;}
+  .timebar > i{display:block;height:100%;background:#868E96;width:100%;transform-origin:left;}
+
+  /* guess sliders */
+  .preview{
+    width:100%;aspect-ratio:16/9;border-radius:var(--r-lg);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06), var(--shadow-card);
+    display:flex;align-items:flex-end;justify-content:flex-start;
+  }
+  .slider-row{margin-top:18px;}
+  .slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;}
+  .slider-name{font-size:13px;font-weight:700;color:var(--body);}
+  .slider-val{font-size:13px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:14px;border-radius:var(--r-pill);
+    outline:none;cursor:pointer;border:1px solid rgba(0,0,0,.06);
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;
+    background:#fff;border:3px solid var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:grab;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--ink);
+    box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:grab;
+  }
+  input[type=range]:focus-visible{box-shadow:0 0 0 4px rgba(117,102,255,.4);}
+
+  /* result */
+  .compare{display:flex;gap:14px;}
+  .compare .col{flex:1;}
+  .compare .cap{font-size:12px;font-weight:700;color:var(--caption);text-align:center;margin-bottom:8px;letter-spacing:.02em;}
+  .compare .sw{width:100%;aspect-ratio:1/1;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+  .score-big{font-size:64px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--violet-7);}
+  .score-unit{font-size:22px;font-weight:700;color:var(--caption);}
+  .band{display:inline-block;margin-top:10px;font-size:14px;font-weight:700;padding:7px 18px;border-radius:var(--r-pill);background:var(--violet-tint);color:var(--violet-7);}
+  .desc-card{margin-top:18px;padding:16px 18px;background:var(--canvas);border-radius:var(--r-md);border:1px solid var(--hairline-soft);}
+  .desc-name{font-size:14px;font-weight:800;color:var(--ink);}
+  .desc-hex{font-size:12.5px;font-weight:700;color:var(--caption);font-variant-numeric:tabular-nums;}
+  .desc-text{margin-top:7px;font-size:14px;line-height:1.6;color:var(--body);}
+
+  /* final + leaderboard */
+  .total-wrap{text-align:center;}
+  .total-num{font-size:76px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;
+    background:linear-gradient(100deg,var(--violet-5),var(--violet-7));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .breakdown{display:flex;gap:7px;justify-content:center;margin-top:18px;flex-wrap:wrap;}
+  .chip{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .chip .mini{width:34px;height:34px;border-radius:9px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+  .chip .pts{font-size:12px;font-weight:700;color:var(--body);font-variant-numeric:tabular-nums;}
+
+  .lb-title{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--caption);margin-bottom:4px;}
+  .lb{list-style:none;margin-top:10px;}
+  .lb li{display:flex;align-items:center;gap:12px;padding:11px 6px;border-bottom:1px solid var(--hairline-soft);font-size:15px;}
+  .lb li:last-child{border-bottom:none;}
+  .lb .rank{width:26px;font-weight:800;color:var(--caption);font-variant-numeric:tabular-nums;text-align:center;}
+  .lb .who{flex:1;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb .pts{font-weight:800;color:var(--violet-7);font-variant-numeric:tabular-nums;}
+  .lb li.me{background:var(--violet-tint);border-radius:var(--r-md);border-bottom-color:transparent;}
+  .lb .rank.medal{color:var(--violet-7);}
+  .lb-empty{font-size:14px;color:var(--caption);text-align:center;padding:18px 0;}
+
+  .hidden{display:none !important;}
+  .fade{animation:fade .4s ease both;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+  .footnote{margin-top:18px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- START -->
+  <section id="screen-start" class="glass panel stack fade">
+    <div>
+      <div class="eyebrow">Evom Design System · Game</div>
+      <h1>Guess the<br>Evom Color</h1>
+      <p class="lede">색을 5초간 보여드려요. 사라진 뒤 HSL 슬라이더로 최대한 비슷하게 다시 만들어 보세요. 눈으로 느끼는 색 차이(ΔE)로 점수가 매겨집니다 — 총 5라운드.</p>
+    </div>
+    <label class="field">
+      <span class="field-label">닉네임</span>
+      <input id="nick" type="text" maxlength="16" placeholder="이름을 입력하세요" autocomplete="off">
+    </label>
+    <button id="startBtn" class="btn btn-primary" disabled>시작하기</button>
+    <button id="viewLbBtn" class="btn btn-ghost" style="margin-top:10px;">리더보드 보기</button>
+    <p class="micro center">기록은 이 게임을 여는 모든 사람에게 공개로 보여요.</p>
+  </section>
+
+  <!-- LEADERBOARD (standalone view) -->
+  <section id="screen-leaderboard" class="glass panel hidden">
+    <div class="eyebrow">Evom Design System · Game</div>
+    <h1 style="font-size:clamp(26px,7vw,34px);margin-top:8px;">리더보드</h1>
+    <div style="margin-top:20px;">
+      <div class="lb-title">최고 점수 TOP 10</div>
+      <ol class="lb" id="leaderboard-view"></ol>
+    </div>
+    <button id="lbStartBtn" class="btn btn-primary" style="margin-top:22px;">게임 시작하기</button>
+    <button id="lbBackBtn" class="btn btn-ghost" style="margin-top:10px;">처음으로</button>
+  </section>
+
+  <!-- REVEAL -->
+  <section id="screen-reveal" class="glass panel hidden">
+    <div class="rounds" id="dots-reveal"></div>
+    <div class="round-tag" id="tag-reveal"></div>
+    <p class="lede center" style="margin-bottom:16px;">이 색을 기억하세요</p>
+    <div class="swatch-xl" id="revealSwatch">
+      <div class="count-badge" id="countNum">5</div>
+    </div>
+    <div class="timebar"><i id="timeFill"></i></div>
+  </section>
+
+  <!-- GUESS -->
+  <section id="screen-guess" class="glass panel hidden">
+    <div class="rounds" id="dots-guess"></div>
+    <div class="round-tag" id="tag-guess"></div>
+    <p class="lede center" style="margin-bottom:16px;">기억한 색을 슬라이더로 맞춰보세요</p>
+    <div class="preview" id="previewSwatch"></div>
+
+    <div class="slider-row">
+      <div class="slider-head"><span class="slider-name">색상 (Hue)</span><span class="slider-val" id="valH">0°</span></div>
+      <input id="sliderH" type="range" min="0" max="360" value="210">
+    </div>
+    <div class="slider-row">
+      <div class="slider-head"><span class="slider-name">채도 (Saturation)</span><span class="slider-val" id="valS">0%</span></div>
+      <input id="sliderS" type="range" min="0" max="100" value="35">
+    </div>
+    <div class="slider-row">
+      <div class="slider-head"><span class="slider-name">명도 (Lightness)</span><span class="slider-val" id="valL">0%</span></div>
+      <input id="sliderL" type="range" min="0" max="100" value="62">
+    </div>
+
+    <button id="submitBtn" class="btn btn-primary" style="margin-top:24px;">이 색으로 제출</button>
+  </section>
+
+  <!-- RESULT -->
+  <section id="screen-result" class="glass panel hidden">
+    <div class="rounds" id="dots-result"></div>
+    <div class="center" style="margin-top:4px;">
+      <span class="score-big" id="roundScore">0</span><span class="score-unit"> / 100</span>
+      <div><span class="band" id="roundBand">—</span></div>
+    </div>
+    <div class="compare" style="margin-top:22px;">
+      <div class="col"><div class="cap">정답</div><div class="sw" id="swTarget"></div></div>
+      <div class="col"><div class="cap">내가 만든 색</div><div class="sw" id="swGuess"></div></div>
+    </div>
+    <p class="micro center" style="margin-top:12px;">색 차이 ΔE <span id="deVal" style="font-weight:700;color:var(--body);"></span></p>
+    <div class="desc-card">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+        <span class="desc-name" id="descName"></span>
+        <span class="desc-hex" id="descHex"></span>
+      </div>
+      <p class="desc-text" id="descText"></p>
+    </div>
+    <button id="nextBtn" class="btn btn-primary" style="margin-top:22px;">다음 색</button>
+  </section>
+
+  <!-- FINAL -->
+  <section id="screen-final" class="glass panel hidden">
+    <div class="total-wrap">
+      <div class="eyebrow">최종 점수</div>
+      <div class="total-num" id="totalNum">0</div>
+      <p class="micro" style="margin-top:6px;">500점 만점 · <span id="finalNick"></span></p>
+      <div class="breakdown" id="breakdown"></div>
+    </div>
+    <div style="margin-top:28px;">
+      <div class="lb-title">리더보드</div>
+      <ol class="lb" id="leaderboard"></ol>
+    </div>
+    <button id="againBtn" class="btn btn-primary" style="margin-top:22px;">다시 도전</button>
+    <button id="shareBtn" class="btn btn-ghost" style="margin-top:10px;">결과 복사하기</button>
+    <input id="copyFallback" type="text" readonly class="hidden"
+      style="margin-top:10px;width:100%;font-family:var(--font);font-size:14px;font-weight:600;color:var(--ink);background:var(--canvas);border:1.5px solid var(--violet-1);border-radius:var(--r-md);padding:12px 14px;text-align:center;">
+    <p id="copyHint" class="micro center hidden" style="margin-top:8px;">자동 복사가 막혀 있어요. 위 칸을 길게 눌러 직접 복사하세요.</p>
+  </section>
+
+</div>
+
+<script>
+// ---------- color tokens ----------
+const TOKENS = {
+  evomcobalt7:{hex:'#5E1AFF',name:'Evom Cobalt 7',desc:'브랜드 프라이머리 — 에봄 브랜드 보라색이에요. 에봄 로고의 메인 색상이며, 주요 액션과 강조에 쓰는 색이에요.'},
+  evomcobalt5:{hex:'#7566FF',name:'Evom Cobalt 5',desc:'브랜드 서브 — 에봄 브랜드 보라색의 밝은 버전으로, 보조 강조와 발표자료에 쓰여요.'},
+  evomcobalt0:{hex:'#F0F0FE',name:'Evom Cobalt 0',desc:'브랜드 틴트 — 에봄 브랜드 보라색의 가장 밝은 버전으로, 배경에 쓰이는 연한 보라색이에요.'},
+  indigo7:{hex:'#4263EB',name:'Indigo 7',desc:'시맨틱 인디고 — 정보와 인터랙션을 나타내는 선명한 남색이에요.'},
+  gray0:{hex:'#F8F9FA',name:'Gray 0',desc:'캔버스 그레이 — 거의 흰색에 가까운 기본 배경이에요.'},
+  gray9:{hex:'#212529',name:'Gray 9',desc:'잉크 그레이 — 거의 검은색에 가까운 진한 회색으로, 텍스트와 주요 요소에 쓰여요.'},
+  red6:{hex:'#FA5252',name:'Red 6',desc:'시맨틱 레드 — 오류와 경고를 나타내는 선명한 빨간색이에요.'},
+  teal6:{hex:'#12B886',name:'Teal 6',desc:'시맨틱 틸 — 성공과 승인을 나타내는 선명한 청록색이에요.'},
+};
+const FIRST = 'evomcobalt7';
+const POOL = ['evomcobalt5','evomcobalt0','indigo7','gray0','gray9','red6','teal6'];
+// 색이 너무 비슷해 한 게임에 함께 나오면 안 되는 짝 (둘 중 하나만 출제)
+const EXCLUSIVE = [['evomcobalt0','gray0']];
+
+// ---------- color math ----------
+function hexToRgb(h){const n=parseInt(h.slice(1),16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};}
+function hslToRgb(h,s,l){
+  s/=100;l/=100;
+  const k=n=>(n+h/30)%12;
+  const a=s*Math.min(l,1-l);
+  const f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));
+  return{r:Math.round(255*f(0)),g:Math.round(255*f(8)),b:Math.round(255*f(4))};
+}
+function rgbToXyz({r,g,b}){
+  let R=r/255,G=g/255,B=b/255;
+  const lin=c=>c>0.04045?Math.pow((c+0.055)/1.055,2.4):c/12.92;
+  R=lin(R);G=lin(G);B=lin(B);
+  return{
+    x:(R*0.4124+G*0.3576+B*0.1805)*100,
+    y:(R*0.2126+G*0.7152+B*0.0722)*100,
+    z:(R*0.0193+G*0.1192+B*0.9505)*100
+  };
+}
+function xyzToLab({x,y,z}){
+  const Xn=95.047,Yn=100,Zn=108.883;
+  const f=t=>t>0.008856?Math.cbrt(t):(7.787*t+16/116);
+  const fx=f(x/Xn),fy=f(y/Yn),fz=f(z/Zn);
+  return{L:116*fy-16,a:500*(fx-fy),b:200*(fy-fz)};
+}
+function labOf(rgb){return xyzToLab(rgbToXyz(rgb));}
+// CIEDE2000
+function deltaE2000(l1,l2){
+  const{L:L1,a:a1,b:b1}=l1,{L:L2,a:a2,b:b2}=l2;
+  const avgL=(L1+L2)/2;
+  const C1=Math.sqrt(a1*a1+b1*b1),C2=Math.sqrt(a2*a2+b2*b2);
+  const avgC=(C1+C2)/2;
+  const G=0.5*(1-Math.sqrt(Math.pow(avgC,7)/(Math.pow(avgC,7)+Math.pow(25,7))));
+  const a1p=a1*(1+G),a2p=a2*(1+G);
+  const C1p=Math.sqrt(a1p*a1p+b1*b1),C2p=Math.sqrt(a2p*a2p+b2*b2);
+  const avgCp=(C1p+C2p)/2;
+  const h=(x,y)=>{let hp=Math.atan2(y,x)*180/Math.PI;return hp<0?hp+360:hp;};
+  const h1p=h(a1p,b1),h2p=h(a2p,b2);
+  let dhp;
+  if(C1p*C2p===0)dhp=0;
+  else if(Math.abs(h2p-h1p)<=180)dhp=h2p-h1p;
+  else if(h2p-h1p>180)dhp=h2p-h1p-360;
+  else dhp=h2p-h1p+360;
+  const dLp=L2-L1,dCp=C2p-C1p;
+  const dHp=2*Math.sqrt(C1p*C2p)*Math.sin((dhp*Math.PI/180)/2);
+  let avgHp;
+  if(C1p*C2p===0)avgHp=h1p+h2p;
+  else if(Math.abs(h1p-h2p)<=180)avgHp=(h1p+h2p)/2;
+  else if(h1p+h2p<360)avgHp=(h1p+h2p+360)/2;
+  else avgHp=(h1p+h2p-360)/2;
+  const T=1-0.17*Math.cos((avgHp-30)*Math.PI/180)+0.24*Math.cos((2*avgHp)*Math.PI/180)
+          +0.32*Math.cos((3*avgHp+6)*Math.PI/180)-0.20*Math.cos((4*avgHp-63)*Math.PI/180);
+  const dTheta=30*Math.exp(-Math.pow((avgHp-275)/25,2));
+  const Rc=2*Math.sqrt(Math.pow(avgCp,7)/(Math.pow(avgCp,7)+Math.pow(25,7)));
+  const Sl=1+(0.015*Math.pow(avgL-50,2))/Math.sqrt(20+Math.pow(avgL-50,2));
+  const Sc=1+0.045*avgCp;
+  const Sh=1+0.015*avgCp*T;
+  const Rt=-Math.sin((2*dTheta)*Math.PI/180)*Rc;
+  return Math.sqrt(
+    Math.pow(dLp/Sl,2)+Math.pow(dCp/Sc,2)+Math.pow(dHp/Sh,2)+Rt*(dCp/Sc)*(dHp/Sh)
+  );
+}
+function scoreFromDE(de){return Math.max(0,Math.round(100*Math.exp(-de/25)));}
+function bandFor(s){
+  if(s>=90)return'완벽에 가까워요';
+  if(s>=70)return'훌륭해요';
+  if(s>=50)return'꽤 비슷해요';
+  if(s>=30)return'조금 빗나갔어요';
+  return'다음엔 더 가까이';
+}
+
+// ---------- game state ----------
+let nickname='';
+let sequence=[];      // 5 token keys
+let round=0;          // 0-based
+let scores=[];        // per-round
+let timer=null;
+
+const $=id=>document.getElementById(id);
+const screens=['screen-start','screen-leaderboard','screen-reveal','screen-guess','screen-result','screen-final'];
+function show(id){screens.forEach(s=>$(s).classList.add('hidden'));const el=$(id);el.classList.remove('hidden');el.classList.remove('fade');void el.offsetWidth;el.classList.add('fade');}
+
+function buildSequence(){
+  let pool=[...POOL];
+  // 너무 비슷한 짝은 둘 중 하나만 남기고 제거
+  EXCLUSIVE.forEach(pair=>{
+    if(pair.every(k=>pool.includes(k))){
+      const drop=pair[Math.floor(Math.random()*pair.length)];
+      pool=pool.filter(k=>k!==drop);
+    }
+  });
+  const shuffled=pool.sort(()=>Math.random()-0.5).slice(0,4);
+  return [FIRST,...shuffled];
+}
+function renderDots(containerId){
+  const c=$(containerId);c.innerHTML='';
+  for(let i=0;i<5;i++){
+    const d=document.createElement('span');
+    d.className='dot'+(i<round?' done':i===round?' active':'');
+    c.appendChild(d);
+  }
+}
+
+// ---------- start ----------
+$('nick').addEventListener('input',e=>{
+  nickname=e.target.value.trim();
+  $('startBtn').disabled=nickname.length===0;
+});
+$('nick').addEventListener('keydown',e=>{if(e.key==='Enter'&&nickname)$('startBtn').click();});
+$('startBtn').addEventListener('click',startGame);
+
+function startGame(){
+  sequence=buildSequence();
+  round=0;scores=[];
+  beginRound();
+}
+
+// ---------- reveal ----------
+function beginRound(){
+  renderDots('dots-reveal');
+  $('tag-reveal').textContent=`Round ${round+1} / 5`;
+  const hex=TOKENS[sequence[round]].hex;
+  $('revealSwatch').style.background=hex;
+  // 카운트 숫자는 배경 밝기에 따라 순수 흰색 또는 검정만 사용
+  const crgb=hexToRgb(hex);
+  const lum=(0.2126*crgb.r+0.7152*crgb.g+0.0722*crgb.b)/255;
+  const cn=$('countNum');
+  cn.style.color = lum>0.6 ? '#000' : '#fff';
+  cn.style.textShadow = lum>0.6 ? '0 1px 6px rgba(255,255,255,.5)' : '0 1px 8px rgba(0,0,0,.28)';
+  show('screen-reveal');
+  let t=5.0;
+  $('countNum').textContent=Math.ceil(t);
+  $('timeFill').style.transition='none';
+  $('timeFill').style.transform='scaleX(1)';
+  void $('timeFill').offsetWidth;
+  $('timeFill').style.transition='transform 5s linear';
+  $('timeFill').style.transform='scaleX(0)';
+  clearInterval(timer);
+  const started=performance.now();
+  timer=setInterval(()=>{
+    const elapsed=(performance.now()-started)/1000;
+    const left=Math.max(0,5-elapsed);
+    $('countNum').textContent=Math.ceil(left);
+    if(left<=0){clearInterval(timer);beginGuess();}
+  },100);
+}
+
+// ---------- guess ----------
+function curHSL(){return{h:+$('sliderH').value,s:+$('sliderS').value,l:+$('sliderL').value};}
+function paintSliders(){
+  const{h,s,l}=curHSL();
+  const rgb=hslToRgb(h,s,l);
+  const css=`rgb(${rgb.r},${rgb.g},${rgb.b})`;
+  $('previewSwatch').style.background=css;
+  $('valH').textContent=h+'°';
+  $('valS').textContent=s+'%';
+  $('valL').textContent=l+'%';
+  $('sliderH').style.background='linear-gradient(90deg,hsl(0,100%,50%),hsl(60,100%,50%),hsl(120,100%,50%),hsl(180,100%,50%),hsl(240,100%,50%),hsl(300,100%,50%),hsl(360,100%,50%))';
+  $('sliderS').style.background=`linear-gradient(90deg,hsl(${h},0%,${l}%),hsl(${h},100%,${l}%))`;
+  $('sliderL').style.background=`linear-gradient(90deg,#000,hsl(${h},${s}%,50%),#fff)`;
+}
+['sliderH','sliderS','sliderL'].forEach(id=>$(id).addEventListener('input',paintSliders));
+
+function beginGuess(){
+  renderDots('dots-guess');
+  $('tag-guess').textContent=`Round ${round+1} / 5`;
+  // reset sliders to a neutral starting point each round
+  $('sliderH').value=210;$('sliderS').value=35;$('sliderL').value=62;
+  paintSliders();
+  show('screen-guess');
+}
+$('submitBtn').addEventListener('click',submitGuess);
+
+// ---------- result ----------
+function submitGuess(){
+  const key=sequence[round];
+  const tHex=TOKENS[key].hex;
+  const {h,s,l}=curHSL();
+  const guessRgb=hslToRgb(h,s,l);
+  const de=deltaE2000(labOf(hexToRgb(tHex)),labOf(guessRgb));
+  const sc=scoreFromDE(de);
+  scores.push(sc);
+
+  renderDots('dots-result');
+  $('roundScore').textContent=sc;
+  $('roundBand').textContent=bandFor(sc);
+  $('swTarget').style.background=tHex;
+  $('swGuess').style.background=`rgb(${guessRgb.r},${guessRgb.g},${guessRgb.b})`;
+  $('deVal').textContent=de.toFixed(1);
+  $('descName').textContent=TOKENS[key].name;
+  $('descHex').textContent=tHex.toUpperCase();
+  $('descText').textContent=TOKENS[key].desc;
+  $('nextBtn').textContent=(round>=4)?'결과 보기':'다음 색';
+  show('screen-result');
+}
+$('nextBtn').addEventListener('click',()=>{
+  round++;
+  if(round>=5)finish();
+  else beginRound();
+});
+
+// ---------- final + leaderboard ----------
+const LB_API='/api/leaderboard';
+
+async function finish(){
+  const total=scores.reduce((a,b)=>a+b,0);
+  $('totalNum').textContent=total;
+  $('finalNick').textContent=nickname;
+  const bd=$('breakdown');bd.innerHTML='';
+  sequence.forEach((key,i)=>{
+    const chip=document.createElement('div');chip.className='chip';
+    chip.innerHTML=`<div class="mini" style="background:${TOKENS[key].hex}"></div><div class="pts">${scores[i]}</div>`;
+    bd.appendChild(chip);
+  });
+  show('screen-final');
+  await submitAndRender(nickname,total);
+}
+
+async function fetchBoard(payload){
+  // payload 있으면 POST(점수 제출 후 조회), 없으면 GET(조회만)
+  let board=null;
+  try{
+    const opt=payload
+      ? {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}
+      : undefined;
+    const res=await fetch(LB_API,opt);
+    if(res.ok){const data=await res.json();board=data.board||[];}
+  }catch(e){/* network/offline */}
+  if(board===null&&payload){
+    // 제출 실패 시 읽기라도 시도
+    try{
+      const res=await fetch(LB_API);
+      if(res.ok){const data=await res.json();board=data.board||[];}
+    }catch(e){/* still offline */}
+  }
+  return board;
+}
+
+async function submitAndRender(name,score){
+  const ol=$('leaderboard');
+  ol.innerHTML='<li class="lb-empty">리더보드를 불러오는 중…</li>';
+  const board=await fetchBoard({name,score});
+  if(board===null){
+    ol.innerHTML='<li class="lb-empty">지금은 리더보드에 연결할 수 없어요. 점수는 위에 표시된 최종 점수로 확인하세요.</li>';
+    return;
+  }
+  renderLeaderboard(board,{name,score},'leaderboard');
+}
+
+async function showLeaderboardView(){
+  const ol=$('leaderboard-view');
+  ol.innerHTML='<li class="lb-empty">리더보드를 불러오는 중…</li>';
+  show('screen-leaderboard');
+  const board=await fetchBoard();
+  if(board===null){
+    ol.innerHTML='<li class="lb-empty">지금은 리더보드에 연결할 수 없어요. 잠시 후 다시 시도해주세요.</li>';
+    return;
+  }
+  renderLeaderboard(board,null,'leaderboard-view');
+}
+
+function renderLeaderboard(board,mine,olId){
+  const ol=$(olId||'leaderboard');ol.innerHTML='';
+  if(!board.length){ol.innerHTML='<li class="lb-empty">아직 기록이 없어요. 첫 주자가 되어보세요.</li>';return;}
+  let marked=false;
+  board.slice(0,10).forEach((row,i)=>{
+    const isMe=!marked&&mine&&row.name===mine.name&&row.score===mine.score;
+    if(isMe)marked=true;
+    const li=document.createElement('li');
+    if(isMe)li.className='me';
+    const medal=i<3?' medal':'';
+    li.innerHTML=`<span class="rank${medal}">${i+1}</span><span class="who">${escapeHtml(row.name)}</span><span class="pts">${row.score}</span>`;
+    ol.appendChild(li);
+  });
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+$('againBtn').addEventListener('click',()=>{startGame();});
+$('viewLbBtn').addEventListener('click',showLeaderboardView);
+$('lbBackBtn').addEventListener('click',()=>show('screen-start'));
+$('lbStartBtn').addEventListener('click',()=>{
+  if(nickname){startGame();}
+  else{show('screen-start');$('nick').focus();}
+});
+async function copyText(text){
+  // 1) 최신 클립보드 API (보안 컨텍스트 + 권한 필요)
+  if(navigator.clipboard && window.isSecureContext){
+    try{ await navigator.clipboard.writeText(text); return true; }catch(e){/* fall through */}
+  }
+  // 2) 레거시 방식 — 사용자 클릭 제스처라 샌드박스에서도 대체로 동작
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.top='-1000px'; ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0,text.length);
+    const ok=document.execCommand('copy');
+    document.body.removeChild(ta);
+    if(ok) return true;
+  }catch(e){/* fall through */}
+  return false;
+}
+$('shareBtn').addEventListener('click',async()=>{
+  const total=scores.reduce((a,b)=>a+b,0);
+  const text=`Guess the Evom Color — ${nickname} ${total}/500점`;
+  const ok=await copyText(text);
+  if(ok){
+    $('shareBtn').textContent='복사됐어요!';
+    $('copyFallback').classList.add('hidden');
+    $('copyHint').classList.add('hidden');
+    setTimeout(()=>$('shareBtn').textContent='결과 복사하기',1600);
+  }else{
+    // 3) 마지막 폴백 — 선택된 입력칸을 노출해 직접 복사하게
+    const fb=$('copyFallback');
+    fb.value=text;
+    fb.classList.remove('hidden');
+    $('copyHint').classList.remove('hidden');
+    fb.focus(); fb.select(); fb.setSelectionRange(0,text.length);
+    $('shareBtn').textContent='결과 복사하기';
+  }
+});
+</script>
+</body>
+</html>
