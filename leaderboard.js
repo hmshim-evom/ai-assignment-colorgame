@@ -13,7 +13,7 @@ const REDIS_URL =
 const REDIS_TOKEN =
   process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
-const KEY = 'evom-color:leaderboard';
+const KEY = 'evom-color:leaderboard:v2'; // 0–50 점수 체계로 전환하며 리더보드 초기화
 const KEEP = 100; // 정렬셋에 보관할 최대 기록 수
 
 // Upstash REST 단일 명령 실행
@@ -84,14 +84,14 @@ module.exports = async (req, res) => {
       let name = String(body.name == null ? '' : body.name).trim().slice(0, 16);
       // 제어문자 제거
       name = name.replace(/[\u0000-\u001F\u007F]/g, '');
-      let score = Math.round(Number(body.score));
+      let score = Math.round(Number(body.score) * 100) / 100; // 소수점 2자리
 
       if (!name) {
         res.status(400).json({ error: '닉네임이 필요합니다.' });
         return;
       }
-      if (!Number.isFinite(score) || score < 0 || score > 500) {
-        res.status(400).json({ error: '점수가 올바르지 않습니다 (0–500).' });
+      if (!Number.isFinite(score) || score < 0 || score > 50) {
+        res.status(400).json({ error: '점수가 올바르지 않습니다 (0–50).' });
         return;
       }
 

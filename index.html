@@ -7,280 +7,234 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
   :root{
-    --canvas:#F8F9FA;
-    --canvas-alt:#F1F3F5;
-    --ink:#212529;
-    --body:#495057;
-    --caption:#868E96;
-    --hairline:#DEE2E6;
-    --hairline-soft:#E9ECEF;
-    --violet-5:#7566FF;
-    --violet-7:#5E1AFF;
-    --violet-1:#E1E0FF;
-    --violet-tint:#F0F0FE;
-    --card:#FFFFFF;
-    --shadow-card:0 4px 12px rgba(15,17,21,.06), 0 12px 24px rgba(15,17,21,.04);
-    --shadow-float:0 8px 24px rgba(15,17,21,.08), 0 24px 48px rgba(15,17,21,.06);
-    --glow:0 12px 32px rgba(117,102,255,.18);
-    --r-md:12px; --r-lg:20px; --r-xl:32px; --r-pill:9999px;
+    --bg:#08080A;
+    --stage:#0D0D10;
+    --ink:#FFFFFF;
+    --muted:#8A8A90;
+    --faint:#5A5A62;
+    --accent:#5E1AFF;
+    --accent-2:#7566FF;
+    --hair:rgba(255,255,255,.12);
+    --r-stage:30px; --r-pill:9999px;
     --font:'Pretendard','Pretendard Variable',-apple-system,'Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{height:100%;}
   body{
-    font-family:var(--font);
-    color:var(--ink);
-    background:
-      radial-gradient(900px 600px at 88% -8%, rgba(117,102,255,.10), transparent 60%),
-      radial-gradient(900px 600px at -8% 108%, rgba(77,171,247,.10), transparent 60%),
-      var(--canvas);
-    min-height:100%;
+    font-family:var(--font);background:var(--bg);color:var(--ink);
     -webkit-font-smoothing:antialiased;
-    display:flex;
-    justify-content:center;
-    padding:clamp(16px,4vw,48px) clamp(14px,4vw,32px);
+    display:flex;align-items:center;justify-content:center;
+    padding:clamp(14px,4vw,40px);min-height:100%;
   }
-  .app{width:100%;max-width:560px;}
-
-  /* frosted glass surface — the signature treatment */
-  .glass{
-    background:rgba(255,255,255,.72);
-    -webkit-backdrop-filter:blur(20px) saturate(140%);
-    backdrop-filter:blur(20px) saturate(140%);
-    border:1px solid rgba(255,255,255,.7);
-    box-shadow:var(--shadow-card);
-    border-radius:var(--r-xl);
+  .stage{
+    position:relative;width:100%;max-width:440px;aspect-ratio:4/5;
+    border-radius:var(--r-stage);overflow:hidden;background:var(--stage);
+    box-shadow:0 30px 80px rgba(0,0,0,.55);
+    isolation:isolate;
   }
-
-  .eyebrow{
-    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--violet-7);
-  }
-  h1{font-size:clamp(30px,8vw,42px);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-top:10px;}
-  .lede{margin-top:14px;color:var(--body);font-size:15px;line-height:1.6;}
-
-  .panel{padding:clamp(22px,5vw,32px);}
-  .stack>*+*{margin-top:18px;}
-
-  label.field{display:block;}
-  .field-label{font-size:13px;font-weight:600;color:var(--caption);margin-bottom:8px;}
-  input[type=text]{
-    width:100%;font-family:var(--font);font-size:17px;font-weight:600;color:var(--ink);
-    background:var(--canvas);border:1.5px solid var(--hairline);border-radius:var(--r-md);
-    padding:14px 16px;outline:none;transition:border-color .15s, box-shadow .15s;
-  }
-  input[type=text]:focus{border-color:var(--violet-5);box-shadow:0 0 0 4px rgba(117,102,255,.14);}
-
-  .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    font-family:var(--font);font-size:16px;font-weight:700;
-    border:none;border-radius:var(--r-pill);cursor:pointer;
-    padding:15px 26px;transition:transform .12s ease, box-shadow .2s ease, background .2s;
-    width:100%;
-  }
-  .btn-primary{background:var(--violet-7);color:#fff;box-shadow:var(--glow);}
-  .btn-primary:hover{transform:translateY(-1px);background:#5414e6;}
-  .btn-primary:active{transform:translateY(0);}
-  .btn-primary:disabled{background:var(--hairline);color:var(--caption);box-shadow:none;cursor:not-allowed;transform:none;}
-  .btn-ghost{background:transparent;color:var(--violet-7);border:1.5px solid var(--violet-1);box-shadow:none;}
-  .btn-ghost:hover{background:var(--violet-tint);}
-  .btn:focus-visible{outline:3px solid rgba(117,102,255,.5);outline-offset:2px;}
-
-  .micro{font-size:12.5px;color:var(--caption);line-height:1.55;}
-  .center{text-align:center;}
-
-  /* progress dots */
-  .rounds{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:6px;}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--hairline);transition:background .3s, transform .3s;}
-  .dot.done{background:var(--violet-5);}
-  .dot.active{background:var(--violet-7);transform:scale(1.45);}
-  .round-tag{font-size:13px;font-weight:700;color:var(--caption);text-align:center;}
-
-  /* reveal */
-  .swatch-xl{
-    width:100%;aspect-ratio:16/10;border-radius:var(--r-lg);
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06), var(--shadow-float);
-    position:relative;overflow:hidden;
-  }
-  .count-badge{
-    position:absolute;top:14px;right:16px;
-    font-size:40px;font-weight:800;font-variant-numeric:tabular-nums;
-    color:#fff;
-  }
-  .timebar{height:5px;border-radius:var(--r-pill);background:var(--hairline-soft);overflow:hidden;margin-top:16px;}
-  .timebar > i{display:block;height:100%;background:#868E96;width:100%;transform-origin:left;}
-
-  /* guess sliders */
-  .preview{
-    width:100%;aspect-ratio:16/9;border-radius:var(--r-lg);
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06), var(--shadow-card);
-    display:flex;align-items:flex-end;justify-content:flex-start;
-  }
-  .slider-row{margin-top:18px;}
-  .slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;}
-  .slider-name{font-size:13px;font-weight:700;color:var(--body);}
-  .slider-val{font-size:13px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
-  input[type=range]{
-    -webkit-appearance:none;appearance:none;width:100%;height:14px;border-radius:var(--r-pill);
-    outline:none;cursor:pointer;border:1px solid rgba(0,0,0,.06);
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;
-    background:#fff;border:3px solid var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:grab;
-  }
-  input[type=range]::-moz-range-thumb{
-    width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--ink);
-    box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:grab;
-  }
-  input[type=range]:focus-visible{box-shadow:0 0 0 4px rgba(117,102,255,.4);}
-
-  /* result */
-  .compare{display:flex;gap:14px;}
-  .compare .col{flex:1;}
-  .compare .cap{font-size:12px;font-weight:700;color:var(--caption);text-align:center;margin-bottom:8px;letter-spacing:.02em;}
-  .compare .sw{width:100%;aspect-ratio:1/1;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
-  .score-big{font-size:64px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--violet-7);}
-  .score-unit{font-size:22px;font-weight:700;color:var(--caption);}
-  .band{display:inline-block;margin-top:10px;font-size:14px;font-weight:700;padding:7px 18px;border-radius:var(--r-pill);background:var(--violet-tint);color:var(--violet-7);}
-  .desc-card{margin-top:18px;padding:16px 18px;background:var(--canvas);border-radius:var(--r-md);border:1px solid var(--hairline-soft);}
-  .desc-name{font-size:14px;font-weight:800;color:var(--ink);}
-  .desc-hex{font-size:12.5px;font-weight:700;color:var(--caption);font-variant-numeric:tabular-nums;}
-  .desc-text{margin-top:7px;font-size:14px;line-height:1.6;color:var(--body);}
-
-  /* final + leaderboard */
-  .total-wrap{text-align:center;}
-  .total-num{font-size:76px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;
-    background:linear-gradient(100deg,var(--violet-5),var(--violet-7));
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-  .breakdown{display:flex;gap:7px;justify-content:center;margin-top:18px;flex-wrap:wrap;}
-  .chip{display:flex;flex-direction:column;align-items:center;gap:6px;}
-  .chip .mini{width:34px;height:34px;border-radius:9px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
-  .chip .pts{font-size:12px;font-weight:700;color:var(--body);font-variant-numeric:tabular-nums;}
-
-  .lb-title{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--caption);margin-bottom:4px;}
-  .lb{list-style:none;margin-top:10px;}
-  .lb li{display:flex;align-items:center;gap:12px;padding:11px 6px;border-bottom:1px solid var(--hairline-soft);font-size:15px;}
-  .lb li:last-child{border-bottom:none;}
-  .lb .rank{width:26px;font-weight:800;color:var(--caption);font-variant-numeric:tabular-nums;text-align:center;}
-  .lb .who{flex:1;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .lb .pts{font-weight:800;color:var(--violet-7);font-variant-numeric:tabular-nums;}
-  .lb li.me{background:var(--violet-tint);border-radius:var(--r-md);border-bottom-color:transparent;}
-  .lb .rank.medal{color:var(--violet-7);}
-  .lb-empty{font-size:14px;color:var(--caption);text-align:center;padding:18px 0;}
-
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;}
   .hidden{display:none !important;}
-  .fade{animation:fade .4s ease both;}
-  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
-  @media (prefers-reduced-motion:reduce){
-    *{animation:none !important;transition:none !important;}
+  .pad{padding:clamp(22px,6%,32px);}
+
+  /* shared overlays */
+  .rtag{position:absolute;top:22px;left:24px;font-size:14px;font-weight:600;letter-spacing:.06em;font-variant-numeric:tabular-nums;z-index:5;}
+  .wmark{position:absolute;top:22px;right:24px;font-size:13px;font-weight:600;letter-spacing:.02em;opacity:.55;z-index:5;}
+
+  /* round action button (white circle, dark glyph) */
+  .fab{
+    position:absolute;bottom:22px;right:22px;width:58px;height:58px;border-radius:50%;
+    background:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .12s ease;z-index:6;
   }
-  .footnote{margin-top:18px;text-align:center;}
+  .fab:hover{transform:translateY(-2px);}
+  .fab:active{transform:translateY(0);}
+  .fab svg{width:24px;height:24px;stroke:#0b0b0d;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .fab:focus-visible{outline:3px solid var(--accent-2);outline-offset:3px;}
+
+  /* big display type */
+  .huge{font-size:clamp(64px,20vw,104px);font-weight:800;line-height:.92;letter-spacing:-.03em;}
+  .big-num{font-size:clamp(56px,17vw,92px);font-weight:800;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+
+  /* buttons / inputs */
+  .btn{font-family:var(--font);font-weight:700;font-size:15px;border:none;border-radius:var(--r-pill);cursor:pointer;
+    padding:14px 22px;transition:transform .12s ease,background .2s,opacity .2s;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{transform:translateY(-1px);background:#5414e6;}
+  .btn-primary:disabled{background:#26262b;color:#666;cursor:not-allowed;transform:none;}
+  .btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.65);}
+  .btn-outline:hover{background:rgba(255,255,255,.08);}
+  .btn-text{background:transparent;color:var(--muted);font-weight:600;font-size:13.5px;padding:8px;cursor:pointer;border:none;}
+  .btn-text:hover{color:#fff;}
+  .btn:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px;}
+  input[type=text]{
+    font-family:var(--font);font-size:16px;font-weight:600;color:#fff;background:transparent;
+    border:1.5px solid rgba(255,255,255,.3);border-radius:var(--r-pill);padding:14px 20px;outline:none;width:100%;
+    transition:border-color .15s;
+  }
+  input[type=text]::placeholder{color:#6a6a72;}
+  input[type=text]:focus{border-color:var(--accent-2);}
+
+  /* START */
+  #screen-start{justify-content:flex-start;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-2);}
+  .desc{margin-top:14px;color:var(--muted);font-size:15px;line-height:1.6;max-width:32ch;}
+  .start-foot{margin-top:auto;display:flex;gap:12px;align-items:stretch;}
+  .start-foot input{flex:1.1;}
+  .start-foot .btn-primary{flex:1;white-space:nowrap;}
+
+  /* COUNT-IN */
+  #screen-countin{align-items:flex-end;justify-content:flex-start;background:#000;}
+  #countinWord{margin:0 24px;padding-top:8%;text-align:right;}
+  #countinWord .huge{transition:opacity .18s ease, transform .18s ease;}
+
+  /* REVEAL */
+  #revealNum{position:absolute;top:18px;right:24px;text-align:right;z-index:5;}
+  #revealNum .big-num{display:block;}
+  #revealNum .sub{font-size:13px;font-weight:600;opacity:.8;margin-top:2px;}
+
+  /* GUESS */
+  #screen-guess{}
+  .rail{position:absolute;left:16px;top:58px;bottom:22px;display:flex;gap:9px;z-index:4;}
+  .vbar{position:relative;width:30px;height:100%;border-radius:16px;cursor:pointer;touch-action:none;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);}
+  .vhandle{position:absolute;left:50%;width:24px;height:24px;border-radius:50%;background:#fff;
+    transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.4);pointer-events:none;}
+  .vbar:focus-visible{outline:3px solid #fff;outline-offset:3px;}
+
+  /* RESULT */
+  #screen-result{flex-direction:column;}
+  .band{flex:1;position:relative;}
+  #resScore{position:absolute;top:6%;right:7%;text-align:right;z-index:3;}
+  #resScore .big-num{display:block;}
+  #resComment{font-size:15px;font-weight:700;margin-top:6px;max-width:18ch;margin-left:auto;line-height:1.4;transition:opacity .25s ease;}
+  .vlabel{position:absolute;left:7%;z-index:3;}
+  .vlabel .k{font-size:12px;font-weight:600;opacity:.6;}
+  .vlabel .val{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:3px;letter-spacing:.01em;}
+  #lblYours{top:calc(50% - 64px);}   /* 위 band 안쪽 하단 */
+  #lblOrig{bottom:8%;}               /* 아래 band 하단 (좌측, 버튼과 분리) */
+  #descBlock{position:absolute;left:7%;right:7%;top:calc(50% + 22px);z-index:3;}
+  #descBlock .dname{font-size:15px;font-weight:800;letter-spacing:-.01em;}
+  #descBlock .dhex{font-weight:700;opacity:.5;font-variant-numeric:tabular-nums;}
+  #descBlock .dtext{margin-top:6px;font-size:13.5px;line-height:1.55;font-weight:500;opacity:.9;}
+
+  /* FINAL */
+  #screen-final{justify-content:flex-start;background:#000;}
+  .final-total{display:flex;align-items:flex-end;gap:2px;}
+  .final-total .num{font-size:clamp(56px,16vw,84px);font-weight:800;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+  .final-total .den{font-size:clamp(30px,9vw,44px);font-weight:800;color:var(--faint);letter-spacing:-.02em;}
+  .final-comment{margin-top:14px;color:var(--muted);font-size:15px;line-height:1.5;max-width:26ch;transition:opacity .25s ease;}
+  .breakdown{display:flex;gap:0;margin-top:auto;border-radius:10px;overflow:hidden;}
+  .mini{position:relative;flex:1;aspect-ratio:1/1.05;display:flex;align-items:flex-start;justify-content:flex-start;}
+  .mini .mscore{position:relative;z-index:2;font-size:13px;font-weight:700;padding:6px 7px;font-variant-numeric:tabular-nums;}
+  .final-btns{display:flex;gap:12px;margin-top:24px;}
+  .final-btns .btn{flex:1;}
+  .final-note{margin-top:18px;color:var(--muted);font-size:13.5px;line-height:1.6;}
+
+  /* LEADERBOARD */
+  #screen-leaderboard{justify-content:flex-start;}
+  .lb-head{font-size:34px;font-weight:800;letter-spacing:-.02em;}
+  .lb-sub{font-size:13px;color:var(--muted);margin-top:2px;margin-bottom:14px;}
+  .lb{list-style:none;overflow-y:auto;flex:1;margin:0 -4px;}
+  .lb li{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--hair);font-size:15px;}
+  .lb li:last-child{border-bottom:none;}
+  .lb .rank{width:24px;font-weight:800;color:var(--faint);font-variant-numeric:tabular-nums;text-align:center;}
+  .lb .rank.medal{color:var(--accent-2);}
+  .lb .who{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb .pts{font-weight:800;color:var(--accent-2);font-variant-numeric:tabular-nums;}
+  .lb li.me{background:rgba(94,26,255,.16);border-radius:10px;border-bottom-color:transparent;padding-left:8px;padding-right:8px;}
+  .lb-empty{color:var(--muted);font-size:14px;text-align:center;padding:24px 0;}
+  .lb-btns{display:flex;gap:12px;margin-top:16px;}
+  .lb-btns .btn{flex:1;}
+
+  .fade{animation:fade .35s ease both;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="stage" id="stage">
 
   <!-- START -->
-  <section id="screen-start" class="glass panel stack fade">
-    <div>
-      <div class="eyebrow">Evom Design System · Game</div>
-      <h1>Guess the<br>Evom Color</h1>
-      <p class="lede">색을 5초간 보여드려요. 사라진 뒤 HSL 슬라이더로 최대한 비슷하게 다시 만들어 보세요. 눈으로 느끼는 색 차이(ΔE)로 점수가 매겨집니다 — 총 5라운드.</p>
-    </div>
-    <label class="field">
-      <span class="field-label">닉네임</span>
+  <section id="screen-start" class="screen pad fade">
+    <div class="eyebrow">Evom Design System</div>
+    <h1 class="huge" style="margin-top:10px;font-size:clamp(44px,13vw,72px);">Color Game</h1>
+    <p class="desc">색을 잠깐 보여드려요. 사라진 뒤 슬라이더로 같은 색을 다시 만들어 보세요. 총 5라운드입니다.</p>
+    <div class="start-foot">
       <input id="nick" type="text" maxlength="16" placeholder="이름을 입력하세요" autocomplete="off">
-    </label>
-    <button id="startBtn" class="btn btn-primary" disabled>시작하기</button>
-    <button id="viewLbBtn" class="btn btn-ghost" style="margin-top:10px;">리더보드 보기</button>
-    <p class="micro center">기록은 이 게임을 여는 모든 사람에게 공개로 보여요.</p>
+      <button id="startBtn" class="btn btn-primary" disabled>시작하기</button>
+    </div>
+    <button id="viewLbBtn" class="btn-text" style="margin-top:12px;align-self:center;">리더보드 보기</button>
   </section>
 
-  <!-- LEADERBOARD (standalone view) -->
-  <section id="screen-leaderboard" class="glass panel hidden">
-    <div class="eyebrow">Evom Design System · Game</div>
-    <h1 style="font-size:clamp(26px,7vw,34px);margin-top:8px;">리더보드</h1>
-    <div style="margin-top:20px;">
-      <div class="lb-title">최고 점수 TOP 10</div>
-      <ol class="lb" id="leaderboard-view"></ol>
-    </div>
-    <button id="lbStartBtn" class="btn btn-primary" style="margin-top:22px;">게임 시작하기</button>
-    <button id="lbBackBtn" class="btn btn-ghost" style="margin-top:10px;">처음으로</button>
+  <!-- COUNT-IN -->
+  <section id="screen-countin" class="screen hidden">
+    <div class="rtag" id="tag-countin">1 / 5</div>
+    <div id="countinWord"><span class="huge" id="countinText">준비</span></div>
   </section>
 
   <!-- REVEAL -->
-  <section id="screen-reveal" class="glass panel hidden">
-    <div class="rounds" id="dots-reveal"></div>
-    <div class="round-tag" id="tag-reveal"></div>
-    <p class="lede center" style="margin-bottom:16px;">이 색을 기억하세요</p>
-    <div class="swatch-xl" id="revealSwatch">
-      <div class="count-badge" id="countNum">5</div>
+  <section id="screen-reveal" class="screen hidden">
+    <div class="rtag" id="tag-reveal">1 / 5</div>
+    <div id="revealNum">
+      <span class="big-num" id="countNum">5</span>
+      <span class="sub">초 남음</span>
     </div>
-    <div class="timebar"><i id="timeFill"></i></div>
   </section>
 
   <!-- GUESS -->
-  <section id="screen-guess" class="glass panel hidden">
-    <div class="rounds" id="dots-guess"></div>
-    <div class="round-tag" id="tag-guess"></div>
-    <p class="lede center" style="margin-bottom:16px;">기억한 색을 슬라이더로 맞춰보세요</p>
-    <div class="preview" id="previewSwatch"></div>
-
-    <div class="slider-row">
-      <div class="slider-head"><span class="slider-name">색상 (Hue)</span><span class="slider-val" id="valH">0°</span></div>
-      <input id="sliderH" type="range" min="0" max="360" value="210">
+  <section id="screen-guess" class="screen hidden">
+    <div class="rtag" id="tag-guess">1 / 5</div>
+    <div class="rail">
+      <div class="vbar" id="barH" role="slider" aria-label="색상" aria-valuemin="0" aria-valuemax="360"><div class="vhandle" id="hH"></div></div>
+      <div class="vbar" id="barS" role="slider" aria-label="채도" aria-valuemin="0" aria-valuemax="100"><div class="vhandle" id="hS"></div></div>
+      <div class="vbar" id="barV" role="slider" aria-label="밝기" aria-valuemin="0" aria-valuemax="100"><div class="vhandle" id="hV"></div></div>
     </div>
-    <div class="slider-row">
-      <div class="slider-head"><span class="slider-name">채도 (Saturation)</span><span class="slider-val" id="valS">0%</span></div>
-      <input id="sliderS" type="range" min="0" max="100" value="35">
-    </div>
-    <div class="slider-row">
-      <div class="slider-head"><span class="slider-name">명도 (Lightness)</span><span class="slider-val" id="valL">0%</span></div>
-      <input id="sliderL" type="range" min="0" max="100" value="62">
-    </div>
-
-    <button id="submitBtn" class="btn btn-primary" style="margin-top:24px;">이 색으로 제출</button>
+    <button id="submitBtn" class="fab" aria-label="이 색으로 확정">
+      <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>
+    </button>
   </section>
 
   <!-- RESULT -->
-  <section id="screen-result" class="glass panel hidden">
-    <div class="rounds" id="dots-result"></div>
-    <div class="center" style="margin-top:4px;">
-      <span class="score-big" id="roundScore">0</span><span class="score-unit"> / 100</span>
-      <div><span class="band" id="roundBand">—</span></div>
+  <section id="screen-result" class="screen hidden">
+    <div class="band" id="bandTop"></div>
+    <div class="band" id="bandBot"></div>
+    <div class="rtag" id="tag-result">1 / 5</div>
+    <div id="resScore">
+      <span class="big-num" id="roundScore">0.00</span>
+      <span id="resComment"></span>
     </div>
-    <div class="compare" style="margin-top:22px;">
-      <div class="col"><div class="cap">정답</div><div class="sw" id="swTarget"></div></div>
-      <div class="col"><div class="cap">내가 만든 색</div><div class="sw" id="swGuess"></div></div>
+    <div class="vlabel" id="lblYours"><div class="k">Your selection</div><div class="val" id="hsbGuess"></div></div>
+    <div class="vlabel" id="lblOrig"><div class="k">Original</div><div class="val" id="hsbTarget"></div></div>
+    <div id="descBlock">
+      <div class="dname"><span id="descName"></span> <span class="dhex" id="descHex"></span></div>
+      <p class="dtext" id="descText"></p>
     </div>
-    <p class="micro center" style="margin-top:12px;">색 차이 ΔE <span id="deVal" style="font-weight:700;color:var(--body);"></span></p>
-    <div class="desc-card">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
-        <span class="desc-name" id="descName"></span>
-        <span class="desc-hex" id="descHex"></span>
-      </div>
-      <p class="desc-text" id="descText"></p>
-    </div>
-    <button id="nextBtn" class="btn btn-primary" style="margin-top:22px;">다음 색</button>
+    <button id="nextBtn" class="fab" aria-label="계속하기">
+      <svg viewBox="0 0 24 24"><line x1="4" y1="12" x2="19" y2="12"></line><polyline points="13 6 19 12 13 18"></polyline></svg>
+    </button>
   </section>
 
   <!-- FINAL -->
-  <section id="screen-final" class="glass panel hidden">
-    <div class="total-wrap">
-      <div class="eyebrow">최종 점수</div>
-      <div class="total-num" id="totalNum">0</div>
-      <p class="micro" style="margin-top:6px;">500점 만점 · <span id="finalNick"></span></p>
-      <div class="breakdown" id="breakdown"></div>
+  <section id="screen-final" class="screen pad hidden">
+    <div class="final-total"><span class="num" id="totalNum">0.00</span><span class="den">/50</span></div>
+    <p class="final-comment" id="finalComment"></p>
+    <div class="breakdown" id="breakdown"></div>
+    <p class="final-note">에봄에서 자주 사용되는 색상을 소개해드렸는데 어떠셨나요?<br>앞으로도 계속 업데이트 될 디자인 시스템을 기대해 주세요 🏃‍♀️</p>
+    <div class="final-btns">
+      <button id="againBtn" class="btn btn-primary">다시 도전</button>
+      <button id="finalLbBtn" class="btn btn-outline">리더보드 보기</button>
     </div>
-    <div style="margin-top:28px;">
-      <div class="lb-title">리더보드</div>
-      <ol class="lb" id="leaderboard"></ol>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section id="screen-leaderboard" class="screen pad hidden">
+    <div class="lb-head">리더보드</div>
+    <div class="lb-sub">최고 점수</div>
+    <ol class="lb" id="leaderboard"></ol>
+    <div class="lb-btns">
+      <button id="lbStartBtn" class="btn btn-primary">게임 시작하기</button>
+      <button id="lbBackBtn" class="btn btn-outline">처음으로</button>
     </div>
-    <button id="againBtn" class="btn btn-primary" style="margin-top:22px;">다시 도전</button>
-    <button id="shareBtn" class="btn btn-ghost" style="margin-top:10px;">결과 복사하기</button>
-    <input id="copyFallback" type="text" readonly class="hidden"
-      style="margin-top:10px;width:100%;font-family:var(--font);font-size:14px;font-weight:600;color:var(--ink);background:var(--canvas);border:1.5px solid var(--violet-1);border-radius:var(--r-md);padding:12px 14px;text-align:center;">
-    <p id="copyHint" class="micro center hidden" style="margin-top:8px;">자동 복사가 막혀 있어요. 위 칸을 길게 눌러 직접 복사하세요.</p>
   </section>
 
 </div>
@@ -297,29 +251,37 @@ const TOKENS = {
   red6:{hex:'#FA5252',name:'Red 6',desc:'시맨틱 레드 — 오류와 경고를 나타내는 선명한 빨간색이에요.'},
   teal6:{hex:'#12B886',name:'Teal 6',desc:'시맨틱 틸 — 성공과 승인을 나타내는 선명한 청록색이에요.'},
 };
-const FIRST = 'evomcobalt7';
-const POOL = ['evomcobalt5','evomcobalt0','indigo7','gray0','gray9','red6','teal6'];
-// 색이 너무 비슷해 한 게임에 함께 나오면 안 되는 짝 (둘 중 하나만 출제)
-const EXCLUSIVE = [['evomcobalt0','gray0']];
+const FIRST='evomcobalt7';
+const POOL=['evomcobalt5','evomcobalt0','indigo7','gray0','gray9','red6','teal6'];
+const EXCLUSIVE=[['evomcobalt0','gray0']];
+const LB_API='/api/leaderboard';
 
 // ---------- color math ----------
 function hexToRgb(h){const n=parseInt(h.slice(1),16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};}
-function hslToRgb(h,s,l){
-  s/=100;l/=100;
-  const k=n=>(n+h/30)%12;
-  const a=s*Math.min(l,1-l);
-  const f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));
-  return{r:Math.round(255*f(0)),g:Math.round(255*f(8)),b:Math.round(255*f(4))};
+function hsvToRgb(h,s,v){
+  s/=100;v/=100;
+  const c=v*s, hh=((h%360)+360)%360/60, x=c*(1-Math.abs(hh%2-1));
+  let r=0,g=0,b=0;
+  if(hh<1){r=c;g=x;}else if(hh<2){r=x;g=c;}else if(hh<3){g=c;b=x;}
+  else if(hh<4){g=x;b=c;}else if(hh<5){r=x;b=c;}else{r=c;b=x;}
+  const m=v-c;
+  return{r:Math.round((r+m)*255),g:Math.round((g+m)*255),b:Math.round((b+m)*255)};
+}
+function rgbToHsv({r,g,b}){
+  r/=255;g/=255;b/=255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+  let h=0;
+  if(d!==0){
+    if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;
+    h*=60;if(h<0)h+=360;
+  }
+  return{h:Math.round(h),s:Math.round((mx===0?0:d/mx)*100),v:Math.round(mx*100)};
 }
 function rgbToXyz({r,g,b}){
   let R=r/255,G=g/255,B=b/255;
   const lin=c=>c>0.04045?Math.pow((c+0.055)/1.055,2.4):c/12.92;
   R=lin(R);G=lin(G);B=lin(B);
-  return{
-    x:(R*0.4124+G*0.3576+B*0.1805)*100,
-    y:(R*0.2126+G*0.7152+B*0.0722)*100,
-    z:(R*0.0193+G*0.1192+B*0.9505)*100
-  };
+  return{x:(R*0.4124+G*0.3576+B*0.1805)*100,y:(R*0.2126+G*0.7152+B*0.0722)*100,z:(R*0.0193+G*0.1192+B*0.9505)*100};
 }
 function xyzToLab({x,y,z}){
   const Xn=95.047,Yn=100,Zn=108.883;
@@ -328,7 +290,6 @@ function xyzToLab({x,y,z}){
   return{L:116*fy-16,a:500*(fx-fy),b:200*(fy-fz)};
 }
 function labOf(rgb){return xyzToLab(rgbToXyz(rgb));}
-// CIEDE2000
 function deltaE2000(l1,l2){
   const{L:L1,a:a1,b:b1}=l1,{L:L2,a:a2,b:b2}=l2;
   const avgL=(L1+L2)/2;
@@ -360,117 +321,160 @@ function deltaE2000(l1,l2){
   const Sc=1+0.045*avgCp;
   const Sh=1+0.015*avgCp*T;
   const Rt=-Math.sin((2*dTheta)*Math.PI/180)*Rc;
-  return Math.sqrt(
-    Math.pow(dLp/Sl,2)+Math.pow(dCp/Sc,2)+Math.pow(dHp/Sh,2)+Rt*(dCp/Sc)*(dHp/Sh)
-  );
+  return Math.sqrt(Math.pow(dLp/Sl,2)+Math.pow(dCp/Sc,2)+Math.pow(dHp/Sh,2)+Rt*(dCp/Sc)*(dHp/Sh));
 }
-function scoreFromDE(de){return Math.max(0,Math.round(100*Math.exp(-de/25)));}
+// ΔE(CIEDE2000) → 0–10 로지스틱 S-curve. 소수 2자리.
+function scoreFromDE(de){
+  const mid=13,width=4.5;
+  const s=10/(1+Math.exp((de-mid)/width));
+  return Math.max(0,Math.min(10,Math.round(s*100)/100));
+}
 function bandFor(s){
-  if(s>=90)return'완벽에 가까워요';
-  if(s>=70)return'훌륭해요';
-  if(s>=50)return'꽤 비슷해요';
-  if(s>=30)return'조금 빗나갔어요';
+  if(s>=9.0)return'거의 완벽해요';
+  if(s>=7.0)return'훌륭해요';
+  if(s>=5.0)return'꽤 비슷해요';
+  if(s>=3.0)return'조금 빗나갔어요';
   return'다음엔 더 가까이';
 }
+function fmt2(n){return (Math.round(n*100)/100).toFixed(2);}
+// 0.00 → target 카운트업 (easeOutQuad). 끝나면 onDone 호출.
+function countUp(el,target,dur,onDone){
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){el.textContent=fmt2(target);if(onDone)onDone();return;}
+  const start=performance.now();
+  (function tick(now){
+    const t=Math.min(1,(now-start)/dur);
+    const e=1-Math.pow(1-t,2);
+    el.textContent=fmt2(target*e);
+    if(t<1)requestAnimationFrame(tick);
+    else{el.textContent=fmt2(target);if(onDone)onDone();}
+  })(start);
+}
+function isLight(rgb){return (0.2126*rgb.r+0.7152*rgb.g+0.0722*rgb.b)/255 > 0.6;}
+function rgbCss(c){return `rgb(${c.r},${c.g},${c.b})`;}
 
-// ---------- game state ----------
-let nickname='';
-let sequence=[];      // 5 token keys
-let round=0;          // 0-based
-let scores=[];        // per-round
-let timer=null;
-
+// ---------- state ----------
 const $=id=>document.getElementById(id);
-const screens=['screen-start','screen-leaderboard','screen-reveal','screen-guess','screen-result','screen-final'];
-function show(id){screens.forEach(s=>$(s).classList.add('hidden'));const el=$(id);el.classList.remove('hidden');el.classList.remove('fade');void el.offsetWidth;el.classList.add('fade');}
+let nickname='';
+let sequence=[];
+let round=0;
+let rounds=[];       // {key, guessRgb, score}
+let lastSubmit=null; // {name, score}
+let timer=null;
+const sel={h:210,s:35,v:62}; // current guess in HSB
+
+const SCREENS=['screen-start','screen-countin','screen-reveal','screen-guess','screen-result','screen-final','screen-leaderboard'];
+function show(id){SCREENS.forEach(s=>$(s).classList.add('hidden'));const el=$(id);el.classList.remove('hidden');el.classList.remove('fade');void el.offsetWidth;el.classList.add('fade');}
+function setTag(v){['tag-countin','tag-reveal','tag-guess','tag-result'].forEach(id=>{const e=$(id);if(e)e.textContent=`${round+1} / 5`;});}
 
 function buildSequence(){
   let pool=[...POOL];
-  // 너무 비슷한 짝은 둘 중 하나만 남기고 제거
   EXCLUSIVE.forEach(pair=>{
     if(pair.every(k=>pool.includes(k))){
       const drop=pair[Math.floor(Math.random()*pair.length)];
       pool=pool.filter(k=>k!==drop);
     }
   });
-  const shuffled=pool.sort(()=>Math.random()-0.5).slice(0,4);
-  return [FIRST,...shuffled];
-}
-function renderDots(containerId){
-  const c=$(containerId);c.innerHTML='';
-  for(let i=0;i<5;i++){
-    const d=document.createElement('span');
-    d.className='dot'+(i<round?' done':i===round?' active':'');
-    c.appendChild(d);
-  }
+  return [FIRST, ...pool.sort(()=>Math.random()-0.5).slice(0,4)];
 }
 
 // ---------- start ----------
-$('nick').addEventListener('input',e=>{
-  nickname=e.target.value.trim();
-  $('startBtn').disabled=nickname.length===0;
-});
+$('nick').addEventListener('input',e=>{nickname=e.target.value.trim();$('startBtn').disabled=nickname.length===0;});
 $('nick').addEventListener('keydown',e=>{if(e.key==='Enter'&&nickname)$('startBtn').click();});
 $('startBtn').addEventListener('click',startGame);
+$('viewLbBtn').addEventListener('click',()=>showLeaderboardView(null));
 
 function startGame(){
-  sequence=buildSequence();
-  round=0;scores=[];
-  beginRound();
+  sequence=buildSequence();round=0;rounds=[];lastSubmit=null;
+  countIn();
+}
+
+// ---------- count-in (준비 → 시작) ----------
+function countIn(){
+  setTag();
+  const w=$('countinText');
+  w.textContent='준비';w.style.opacity='0';w.style.transform='translateY(8px)';
+  show('screen-countin');
+  requestAnimationFrame(()=>{w.style.opacity='1';w.style.transform='none';});
+  setTimeout(()=>{
+    w.style.opacity='0';w.style.transform='translateY(-8px)';
+    setTimeout(()=>{
+      w.textContent='시작';w.style.transform='translateY(8px)';
+      requestAnimationFrame(()=>{w.style.opacity='1';w.style.transform='none';});
+    },180);
+  },820);
+  setTimeout(beginReveal,1700);
 }
 
 // ---------- reveal ----------
-function beginRound(){
-  renderDots('dots-reveal');
-  $('tag-reveal').textContent=`Round ${round+1} / 5`;
+function beginReveal(){
+  setTag();
   const hex=TOKENS[sequence[round]].hex;
-  $('revealSwatch').style.background=hex;
-  // 카운트 숫자는 배경 밝기에 따라 순수 흰색 또는 검정만 사용
-  const crgb=hexToRgb(hex);
-  const lum=(0.2126*crgb.r+0.7152*crgb.g+0.0722*crgb.b)/255;
-  const cn=$('countNum');
-  cn.style.color = lum>0.6 ? '#000' : '#fff';
-  cn.style.textShadow = lum>0.6 ? '0 1px 6px rgba(255,255,255,.5)' : '0 1px 8px rgba(0,0,0,.28)';
+  $('screen-reveal').style.background=hex;
+  const dark=!isLight(hexToRgb(hex));
+  const col=dark?'#fff':'#0b0b0d';
+  $('countNum').style.color=col;$('countNum').nextElementSibling.style.color=col;
+  $('tag-reveal').style.color=col;
   show('screen-reveal');
-  let t=5.0;
-  $('countNum').textContent=Math.ceil(t);
-  $('timeFill').style.transition='none';
-  $('timeFill').style.transform='scaleX(1)';
-  void $('timeFill').offsetWidth;
-  $('timeFill').style.transition='transform 5s linear';
-  $('timeFill').style.transform='scaleX(0)';
+  const start=performance.now();
+  $('countNum').textContent='5';
   clearInterval(timer);
-  const started=performance.now();
   timer=setInterval(()=>{
-    const elapsed=(performance.now()-started)/1000;
-    const left=Math.max(0,5-elapsed);
+    const left=Math.max(0,5-(performance.now()-start)/1000);
     $('countNum').textContent=Math.ceil(left);
     if(left<=0){clearInterval(timer);beginGuess();}
-  },100);
+  },90);
 }
 
-// ---------- guess ----------
-function curHSL(){return{h:+$('sliderH').value,s:+$('sliderS').value,l:+$('sliderL').value};}
-function paintSliders(){
-  const{h,s,l}=curHSL();
-  const rgb=hslToRgb(h,s,l);
-  const css=`rgb(${rgb.r},${rgb.g},${rgb.b})`;
-  $('previewSwatch').style.background=css;
-  $('valH').textContent=h+'°';
-  $('valS').textContent=s+'%';
-  $('valL').textContent=l+'%';
-  $('sliderH').style.background='linear-gradient(90deg,hsl(0,100%,50%),hsl(60,100%,50%),hsl(120,100%,50%),hsl(180,100%,50%),hsl(240,100%,50%),hsl(300,100%,50%),hsl(360,100%,50%))';
-  $('sliderS').style.background=`linear-gradient(90deg,hsl(${h},0%,${l}%),hsl(${h},100%,${l}%))`;
-  $('sliderL').style.background=`linear-gradient(90deg,#000,hsl(${h},${s}%,50%),#fff)`;
+// ---------- guess (vertical HSB sliders) ----------
+function paint(){
+  const rgb=hsvToRgb(sel.h,sel.s,sel.v);
+  $('screen-guess').style.background=rgbCss(rgb);
+  // overlays adapt to current color
+  const col=isLight(rgb)?'#0b0b0d':'#fff';
+  $('tag-guess').style.color=col;
+  // gradients
+  const sHi=hsvToRgb(sel.h,100,sel.v), sLo=hsvToRgb(sel.h,0,sel.v), vHi=hsvToRgb(sel.h,sel.s,100);
+  $('barH').style.background='linear-gradient(to bottom,hsl(0 100% 50%),hsl(60 100% 50%),hsl(120 100% 50%),hsl(180 100% 50%),hsl(240 100% 50%),hsl(300 100% 50%),hsl(360 100% 50%))';
+  $('barS').style.background=`linear-gradient(to bottom,${rgbCss(sHi)},${rgbCss(sLo)})`;
+  $('barV').style.background=`linear-gradient(to bottom,${rgbCss(vHi)},#000)`;
+  // handle positions (top = max for S/V; top = hue 0)
+  $('hH').style.top=(sel.h/360*100)+'%';
+  $('hS').style.top=((100-sel.s)/100*100)+'%';
+  $('hV').style.top=((100-sel.v)/100*100)+'%';
+  $('barH').setAttribute('aria-valuenow',sel.h);
+  $('barS').setAttribute('aria-valuenow',sel.s);
+  $('barV').setAttribute('aria-valuenow',sel.v);
 }
-['sliderH','sliderS','sliderL'].forEach(id=>$(id).addEventListener('input',paintSliders));
+function bindBar(barId,kind){
+  const bar=$(barId);
+  let drag=false;
+  const apply=clientY=>{
+    const r=bar.getBoundingClientRect();
+    let p=(clientY-r.top)/r.height;p=Math.max(0,Math.min(1,p));
+    if(kind==='h')sel.h=Math.round(p*360);
+    else if(kind==='s')sel.s=Math.round((1-p)*100);
+    else sel.v=Math.round((1-p)*100);
+    paint();
+  };
+  bar.addEventListener('pointerdown',e=>{drag=true;bar.setPointerCapture(e.pointerId);apply(e.clientY);});
+  bar.addEventListener('pointermove',e=>{if(drag)apply(e.clientY);});
+  bar.addEventListener('pointerup',()=>{drag=false;});
+  bar.addEventListener('pointercancel',()=>{drag=false;});
+  bar.addEventListener('keydown',e=>{
+    const step=e.shiftKey?10:1;let done=true;
+    if(e.key==='ArrowUp'){if(kind==='h')sel.h=(sel.h-step+360)%360;else if(kind==='s')sel.s=Math.min(100,sel.s+step);else sel.v=Math.min(100,sel.v+step);}
+    else if(e.key==='ArrowDown'){if(kind==='h')sel.h=(sel.h+step)%360;else if(kind==='s')sel.s=Math.max(0,sel.s-step);else sel.v=Math.max(0,sel.v-step);}
+    else done=false;
+    if(done){e.preventDefault();paint();}
+  });
+}
+bindBar('barH','h');bindBar('barS','s');bindBar('barV','v');
 
 function beginGuess(){
-  renderDots('dots-guess');
-  $('tag-guess').textContent=`Round ${round+1} / 5`;
-  // reset sliders to a neutral starting point each round
-  $('sliderH').value=210;$('sliderS').value=35;$('sliderL').value=62;
-  paintSliders();
+  setTag();
+  sel.h=210;sel.s=35;sel.v=62;
+  paint();
   show('screen-guess');
 }
 $('submitBtn').addEventListener('click',submitGuess);
@@ -478,151 +482,106 @@ $('submitBtn').addEventListener('click',submitGuess);
 // ---------- result ----------
 function submitGuess(){
   const key=sequence[round];
-  const tHex=TOKENS[key].hex;
-  const {h,s,l}=curHSL();
-  const guessRgb=hslToRgb(h,s,l);
-  const de=deltaE2000(labOf(hexToRgb(tHex)),labOf(guessRgb));
+  const tHex=TOKENS[key].hex, tRgb=hexToRgb(tHex);
+  const gRgb=hsvToRgb(sel.h,sel.s,sel.v);
+  const de=deltaE2000(labOf(tRgb),labOf(gRgb));
   const sc=scoreFromDE(de);
-  scores.push(sc);
+  rounds.push({key,guessRgb:gRgb,score:sc});
 
-  renderDots('dots-result');
-  $('roundScore').textContent=sc;
-  $('roundBand').textContent=bandFor(sc);
-  $('swTarget').style.background=tHex;
-  $('swGuess').style.background=`rgb(${guessRgb.r},${guessRgb.g},${guessRgb.b})`;
-  $('deVal').textContent=de.toFixed(1);
+  setTag();
+  $('bandTop').style.background=rgbCss(gRgb);   // your selection
+  $('bandBot').style.background=tHex;           // original
+  const gCol=isLight(gRgb)?'#0b0b0d':'#fff';
+  const tCol=isLight(tRgb)?'#0b0b0d':'#fff';
+  $('tag-result').style.color=gCol;
+  $('resScore').style.color=gCol;
+  $('lblYours').style.color=gCol;
+  $('lblOrig').style.color=tCol;
+  $('roundScore').textContent='0.00';
+  $('resComment').textContent=bandFor(sc);
+  $('resComment').style.opacity='0';
+  countUp($('roundScore'),sc,1000,()=>{$('resComment').style.opacity='1';});
+  const tHsb=rgbToHsv(tRgb);
+  $('hsbGuess').textContent=`H${sel.h} S${sel.s} B${sel.v}`;
+  $('hsbTarget').textContent=`H${tHsb.h} S${tHsb.s} B${tHsb.v}`;
   $('descName').textContent=TOKENS[key].name;
   $('descHex').textContent=tHex.toUpperCase();
   $('descText').textContent=TOKENS[key].desc;
-  $('nextBtn').textContent=(round>=4)?'결과 보기':'다음 색';
+  $('descBlock').style.color=tCol;
+  $('nextBtn').setAttribute('aria-label',round>=4?'결과 보기':'계속하기');
   show('screen-result');
 }
 $('nextBtn').addEventListener('click',()=>{
   round++;
   if(round>=5)finish();
-  else beginRound();
+  else countIn();
 });
 
-// ---------- final + leaderboard ----------
-const LB_API='/api/leaderboard';
-
+// ---------- final ----------
 async function finish(){
-  const total=scores.reduce((a,b)=>a+b,0);
-  $('totalNum').textContent=total;
-  $('finalNick').textContent=nickname;
+  const total=Math.round(rounds.reduce((a,r)=>a+r.score,0)*100)/100;
+  $('totalNum').textContent='0.00';
+  $('finalComment').textContent=bandFor(total/5);
+  $('finalComment').style.opacity='0';
   const bd=$('breakdown');bd.innerHTML='';
-  sequence.forEach((key,i)=>{
-    const chip=document.createElement('div');chip.className='chip';
-    chip.innerHTML=`<div class="mini" style="background:${TOKENS[key].hex}"></div><div class="pts">${scores[i]}</div>`;
-    bd.appendChild(chip);
+  rounds.forEach(r=>{
+    const tHex=TOKENS[r.key].hex;
+    const cell=document.createElement('div');cell.className='mini';
+    cell.style.background=`linear-gradient(135deg, ${rgbCss(r.guessRgb)} 0 49.6%, ${tHex} 50% 100%)`;
+    const sc=document.createElement('span');sc.className='mscore';
+    sc.textContent=fmt2(r.score);
+    sc.style.color=isLight(r.guessRgb)?'#0b0b0d':'#fff';
+    cell.appendChild(sc);bd.appendChild(cell);
   });
   show('screen-final');
-  await submitAndRender(nickname,total);
+  countUp($('totalNum'),total,1000,()=>{$('finalComment').style.opacity='1';});
+  lastSubmit={name:nickname,score:total};
+  // 점수 기록(POST). 리스트는 '리더보드 보기'에서 표시.
+  try{await fetchBoard(lastSubmit);}catch(e){}
 }
+$('againBtn').addEventListener('click',startGame);
+$('finalLbBtn').addEventListener('click',()=>showLeaderboardView(lastSubmit));
 
+// ---------- leaderboard ----------
 async function fetchBoard(payload){
-  // payload 있으면 POST(점수 제출 후 조회), 없으면 GET(조회만)
-  let board=null;
-  try{
-    const opt=payload
-      ? {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}
-      : undefined;
+  async function call(opt){
     const res=await fetch(LB_API,opt);
-    if(res.ok){const data=await res.json();board=data.board||[];}
-  }catch(e){/* network/offline */}
-  if(board===null&&payload){
-    // 제출 실패 시 읽기라도 시도
-    try{
-      const res=await fetch(LB_API);
-      if(res.ok){const data=await res.json();board=data.board||[];}
-    }catch(e){/* still offline */}
+    let data=null;try{data=await res.json();}catch(e){}
+    if(res.ok&&data&&Array.isArray(data.board))return {board:data.board};
+    return {error:(data&&data.error)?data.error:`서버 오류 (HTTP ${res.status})`};
   }
-  return board;
+  try{
+    const opt=payload?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}:undefined;
+    const r=await call(opt);
+    if(r.board)return r;
+    if(payload){try{const r2=await call(undefined);if(r2.board)return r2;}catch(e){}}
+    return r;
+  }catch(e){return {error:'네트워크에 연결할 수 없어요. 잠시 후 다시 시도해주세요.'};}
 }
-
-async function submitAndRender(name,score){
+async function showLeaderboardView(mine){
   const ol=$('leaderboard');
   ol.innerHTML='<li class="lb-empty">리더보드를 불러오는 중…</li>';
-  const board=await fetchBoard({name,score});
-  if(board===null){
-    ol.innerHTML='<li class="lb-empty">지금은 리더보드에 연결할 수 없어요. 점수는 위에 표시된 최종 점수로 확인하세요.</li>';
-    return;
-  }
-  renderLeaderboard(board,{name,score},'leaderboard');
-}
-
-async function showLeaderboardView(){
-  const ol=$('leaderboard-view');
-  ol.innerHTML='<li class="lb-empty">리더보드를 불러오는 중…</li>';
   show('screen-leaderboard');
-  const board=await fetchBoard();
-  if(board===null){
-    ol.innerHTML='<li class="lb-empty">지금은 리더보드에 연결할 수 없어요. 잠시 후 다시 시도해주세요.</li>';
-    return;
-  }
-  renderLeaderboard(board,null,'leaderboard-view');
+  const r=await fetchBoard();
+  if(r.error){ol.innerHTML=`<li class="lb-empty">리더보드를 불러올 수 없어요 — ${escapeHtml(r.error)}</li>`;return;}
+  renderLeaderboard(r.board,mine);
 }
-
-function renderLeaderboard(board,mine,olId){
-  const ol=$(olId||'leaderboard');ol.innerHTML='';
+function renderLeaderboard(board,mine){
+  const ol=$('leaderboard');ol.innerHTML='';
   if(!board.length){ol.innerHTML='<li class="lb-empty">아직 기록이 없어요. 첫 주자가 되어보세요.</li>';return;}
   let marked=false;
   board.slice(0,10).forEach((row,i)=>{
-    const isMe=!marked&&mine&&row.name===mine.name&&row.score===mine.score;
+    const isMe=!marked&&mine&&row.name===mine.name&&Number(row.score)===Number(mine.score);
     if(isMe)marked=true;
-    const li=document.createElement('li');
-    if(isMe)li.className='me';
+    const li=document.createElement('li');if(isMe)li.className='me';
     const medal=i<3?' medal':'';
-    li.innerHTML=`<span class="rank${medal}">${i+1}</span><span class="who">${escapeHtml(row.name)}</span><span class="pts">${row.score}</span>`;
+    li.innerHTML=`<span class="rank${medal}">${i+1}</span><span class="who">${escapeHtml(row.name)}</span><span class="pts">${fmt2(row.score)}</span>`;
     ol.appendChild(li);
   });
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-
-$('againBtn').addEventListener('click',()=>{startGame();});
-$('viewLbBtn').addEventListener('click',showLeaderboardView);
 $('lbBackBtn').addEventListener('click',()=>show('screen-start'));
-$('lbStartBtn').addEventListener('click',()=>{
-  if(nickname){startGame();}
-  else{show('screen-start');$('nick').focus();}
-});
-async function copyText(text){
-  // 1) 최신 클립보드 API (보안 컨텍스트 + 권한 필요)
-  if(navigator.clipboard && window.isSecureContext){
-    try{ await navigator.clipboard.writeText(text); return true; }catch(e){/* fall through */}
-  }
-  // 2) 레거시 방식 — 사용자 클릭 제스처라 샌드박스에서도 대체로 동작
-  try{
-    const ta=document.createElement('textarea');
-    ta.value=text; ta.setAttribute('readonly','');
-    ta.style.position='fixed'; ta.style.top='-1000px'; ta.style.opacity='0';
-    document.body.appendChild(ta);
-    ta.select(); ta.setSelectionRange(0,text.length);
-    const ok=document.execCommand('copy');
-    document.body.removeChild(ta);
-    if(ok) return true;
-  }catch(e){/* fall through */}
-  return false;
-}
-$('shareBtn').addEventListener('click',async()=>{
-  const total=scores.reduce((a,b)=>a+b,0);
-  const text=`Guess the Evom Color — ${nickname} ${total}/500점`;
-  const ok=await copyText(text);
-  if(ok){
-    $('shareBtn').textContent='복사됐어요!';
-    $('copyFallback').classList.add('hidden');
-    $('copyHint').classList.add('hidden');
-    setTimeout(()=>$('shareBtn').textContent='결과 복사하기',1600);
-  }else{
-    // 3) 마지막 폴백 — 선택된 입력칸을 노출해 직접 복사하게
-    const fb=$('copyFallback');
-    fb.value=text;
-    fb.classList.remove('hidden');
-    $('copyHint').classList.remove('hidden');
-    fb.focus(); fb.select(); fb.setSelectionRange(0,text.length);
-    $('shareBtn').textContent='결과 복사하기';
-  }
-});
+$('lbStartBtn').addEventListener('click',()=>{if(nickname)startGame();else{show('screen-start');$('nick').focus();}});
 </script>
 </body>
 </html>
